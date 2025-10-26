@@ -153,12 +153,12 @@
     </div>
 
     <script>
-        const apiUrl = 'https://ip-api.com/json';
+        const apiUrl = 'http://ip-api.com/json';
 
         function getGeoLocation(ip) {
             let url = apiUrl;
             if (ip) {
-                url = `https://ip-api.com/json/${ip}`;
+                url = `http://ip-api.com/json/${ip}`;
             }
 
             fetch(url)
