@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de IP</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #00c6ff, #ffff99);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffffcc;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #00aaff;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #00aaff;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #008ecc;
+        }
+
+        .resultado, .erro {
+            margin-top: 20px;
+        }
+
+        .resultado ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .resultado li {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .erro {
+            color: red;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .copy-btn {
+            background-color: #00c6ff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-left: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background-color: #008ecc;
+        }
+
+        .github-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .github-link a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .github-link a:hover {
+            color: #007bff;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 25px;
+            }
+
+            input[type="text"], button, .copy-btn {
+                font-size: 0.95rem;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Consulta de IP</h2>
+        <form id="geoipForm">
+            <label for="ipInput">Digite o IP:</label>
+            <input type="text" id="ipInput" placeholder="Ex: IPv4">
+            <button type="submit">Buscar</button>
+        </form>
+
+        <div id="resultado" class="resultado"></div>
+
+        <div id="erro" class="erro"></div>
+
+        <div class="github-link">
+            <a href="https://github.com/gabrielsfernandesbr/" target="_blank">Visite meu GitHub</a>
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = 'https://ip-api.com/json';
+
+        function getGeoLocation(ip) {
+            let url = apiUrl;
+            if (ip) {
+                url = `https://ip-api.com/json/${ip}`;
+            }
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao consultar a API');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'fail') {
+                        document.getElementById('resultado').innerHTML = '<p class="erro">Erro: Não foi possível localizar esse IP.</p>';
+                        return;
+                    }
+
+                    const resultado = `
+                        <ul>
+                            <li><strong>IP:</strong> ${data.query}</li>
+                            <li><strong>País:</strong> ${data.country} (${data.countryCode})</li>
+                            <li><strong>Região:</strong> ${data.regionName}</li>
+                            <li><strong>Cidade:</strong> ${data.city}</li>
+                            <li><strong>CEP:</strong> ${data.zip}</li>
+                            <li><strong>Latitude:</strong> ${data.lat}</li>
+                            <li><strong>Longitude:</strong> ${data.lon}</li>
+                            <li><strong>Fuso Horário:</strong> ${data.timezone}</li>
+                            <li><strong>Provedor (ISP):</strong> ${data.isp}</li>
+                            <li><strong>Organização:</strong> ${data.org}</li>
+                            <li><strong>Sistema Autônomo (AS):</strong> ${data.as}</li>
+                            <li><strong>DNS Reverso:</strong> ${data.reverse || 'N/A'}</li>
+                            <li><strong>Dispositivo Móvel:</strong> ${data.mobile ? 'Sim' : 'Não'}</li>
+                            <li><strong>Usando Proxy:</strong> ${data.proxy ? 'Sim' : 'Não'}</li>
+                            <li><strong>Hospedagem:</strong> ${data.hosting ? 'Sim' : 'Não'}</li>
+                        </ul>
+                    `;
+
+                    document.getElementById('resultado').innerHTML = resultado;
+                    document.getElementById('erro').innerHTML = '';
+                })
+                .catch(error => {
+                    console.error('Erro ao consultar a API:', error);
+                    document.getElementById('resultado').innerHTML = '';
+                    document.getElementById('erro').innerHTML = `<p class="erro">Erro: ${error.message}</p>`;
+                });
+        }
+
+        document.getElementById('geoipForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const ip = document.getElementById('ipInput').value.trim();
+            
+            if (ip) {
+                getGeoLocation(ip);
+            } else {
+                getGeoLocation();
+            }
+        });
+    </script>
+</body>
+</html>
