@@ -15,7 +15,6 @@
             align-items: center;
             min-height: 100vh;
         }
-
         .container {
             background-color: #ffffffcc;
             padding: 30px 40px;
@@ -24,23 +23,19 @@
             max-width: 500px;
             width: 90%;
         }
-
         h2 {
             text-align: center;
             margin-bottom: 20px;
             color: #333;
         }
-
         form {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
-
         label {
             font-weight: bold;
         }
-
         input[type="text"] {
             padding: 10px;
             font-size: 1rem;
@@ -48,12 +43,10 @@
             border-radius: 6px;
             transition: border-color 0.3s ease;
         }
-
         input[type="text"]:focus {
             outline: none;
             border-color: #00aaff;
         }
-
         button {
             padding: 10px;
             background-color: #00aaff;
@@ -64,31 +57,25 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-
         button:hover {
             background-color: #008ecc;
         }
-
         .resultado, .erro {
             margin-top: 20px;
         }
-
         .resultado ul {
             list-style: none;
             padding: 0;
         }
-
         .resultado li {
             margin-bottom: 8px;
             color: #333;
         }
-
         .erro {
             color: red;
             text-align: center;
             font-weight: bold;
         }
-
         .copy-btn {
             background-color: #00c6ff;
             color: white;
@@ -99,17 +86,14 @@
             margin-left: 10px;
             transition: background-color 0.3s ease;
         }
-
         .copy-btn:hover {
             background-color: #008ecc;
         }
-
         .github-link {
             display: block;
             text-align: center;
             margin-top: 20px;
         }
-
         .github-link a {
             text-decoration: none;
             color: #333;
@@ -117,16 +101,13 @@
             font-size: 1rem;
             transition: color 0.3s ease;
         }
-
         .github-link a:hover {
             color: #007bff;
         }
-
         @media (max-width: 600px) {
             .container {
                 padding: 20px 25px;
             }
-
             input[type="text"], button, .copy-btn {
                 font-size: 0.95rem;
                 padding: 8px;
@@ -139,28 +120,22 @@
         <h2>Consulta de IP</h2>
         <form id="geoipForm">
             <label for="ipInput">Digite o IP:</label>
-            <input type="text" id="ipInput" placeholder="Ex: IPv4">
+            <input type="text" id="ipInput" placeholder="Ex: IPv4 ou IPv6">
             <button type="submit">Buscar</button>
         </form>
-
         <div id="resultado" class="resultado"></div>
-
         <div id="erro" class="erro"></div>
-
         <div class="github-link">
             <a href="https://github.com/gabrielsfernandesbr/" target="_blank">Visite meu GitHub</a>
         </div>
     </div>
-
     <script>
-        const apiUrl = 'http://ip-api.com/json';
-
+        const apiUrl = 'https://ipwho.is/';
         function getGeoLocation(ip) {
             let url = apiUrl;
             if (ip) {
-                url = `http://ip-api.com/json/${ip}`;
+                url += ip;
             }
-
             fetch(url)
                 .then(response => {
                     if (!response.ok) {
@@ -169,31 +144,25 @@
                     return response.json();
                 })
                 .then(data => {
-                    if (data.status === 'fail') {
+                    if (!data.success) {
                         document.getElementById('resultado').innerHTML = '<p class="erro">Erro: Não foi possível localizar esse IP.</p>';
                         return;
                     }
-
                     const resultado = `
                         <ul>
-                            <li><strong>IP:</strong> ${data.query}</li>
-                            <li><strong>País:</strong> ${data.country} (${data.countryCode})</li>
-                            <li><strong>Região:</strong> ${data.regionName}</li>
+                            <li><strong>IP:</strong> ${data.ip}</li>
+                            <li><strong>País:</strong> ${data.country} (${data.country_code})</li>
+                            <li><strong>Região:</strong> ${data.region}</li>
                             <li><strong>Cidade:</strong> ${data.city}</li>
-                            <li><strong>CEP:</strong> ${data.zip}</li>
-                            <li><strong>Latitude:</strong> ${data.lat}</li>
-                            <li><strong>Longitude:</strong> ${data.lon}</li>
-                            <li><strong>Fuso Horário:</strong> ${data.timezone}</li>
-                            <li><strong>Provedor (ISP):</strong> ${data.isp}</li>
-                            <li><strong>Organização:</strong> ${data.org}</li>
-                            <li><strong>Sistema Autônomo (AS):</strong> ${data.as}</li>
-                            <li><strong>DNS Reverso:</strong> ${data.reverse || 'N/A'}</li>
-                            <li><strong>Dispositivo Móvel:</strong> ${data.mobile ? 'Sim' : 'Não'}</li>
-                            <li><strong>Usando Proxy:</strong> ${data.proxy ? 'Sim' : 'Não'}</li>
-                            <li><strong>Hospedagem:</strong> ${data.hosting ? 'Sim' : 'Não'}</li>
+                            <li><strong>CEP:</strong> ${data.postal || 'N/A'}</li>
+                            <li><strong>Latitude:</strong> ${data.latitude}</li>
+                            <li><strong>Longitude:</strong> ${data.longitude}</li>
+                            <li><strong>Fuso Horário:</strong> ${data.timezone.id}</li>
+                            <li><strong>Moeda:</strong> ${data.currency.name} (${data.currency.code})</li>
+                            <li><strong>Provedor (ISP):</strong> ${data.connection.isp}</li>
+                            <li><strong>Tipo de Conexão:</strong> ${data.connection.type}</li>
                         </ul>
                     `;
-
                     document.getElementById('resultado').innerHTML = resultado;
                     document.getElementById('erro').innerHTML = '';
                 })
@@ -203,11 +172,9 @@
                     document.getElementById('erro').innerHTML = `<p class="erro">Erro: ${error.message}</p>`;
                 });
         }
-
         document.getElementById('geoipForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const ip = document.getElementById('ipInput').value.trim();
-            
             if (ip) {
                 getGeoLocation(ip);
             } else {
